@@ -46,23 +46,35 @@ The MCP URL follows the pattern `https://api.<your-domain>/mgmt/api/v1/mcp`. The
 
 A fresh install uses `${CORALOGIX_DOMAIN}` in the MCP URL; the server can connect if that variable is already set (shell or plugin settings). `/cx-setup` and `/cx-config` replace it with a literal hostname in the URL so region changes from chat are not overridden by your session. If you already registered the Coralogix MCP server manually in `~/.cursor/mcp.json`, remove or rename that entry first to avoid connecting twice.
 
+## Identity, region, and connectivity scope
+
+The plugin configures authentication to Coralogix and selects a regional MCP endpoint. It does not independently verify a person's legal identity or manage DNS records.
+
+| ID | Structural block | Category | Micro KPI (setup check) | Macro KPI (evaluate over time) |
+|----|------------------|----------|-------------------------|--------------------------------|
+| AUTH-01 | Authentication | OAuth / API key | Selected method completes authentication | Successful authenticated connections, segmented by method |
+| REG-01 | Regional configuration | Coralogix region / endpoint | Configured hostname matches the selected region | Successful setups, segmented by region |
+| NET-01 | Network connectivity | DNS resolution / HTTPS | Configured hostname resolves and the MCP endpoint is reachable | Connection success rate, segmented by region or network |
+
+These are suggested checks, not metrics collected by the plugin. This plugin does not issue invoices or tickets, manage smart contacts, or provide country-specific tax or legal compliance workflows. DNS checks refer only to resolving and reaching the configured Coralogix hostname; DNS administration is out of scope.
+
+## Key commands by block and segment
+
+The color and ID are organizational labels for the examples below, not plugin settings. Only `/cx-setup` and `/cx-config` are slash commands; the other rows are natural-language prompts to use in Cursor chat. Replace `{service}`, `{environment}`, and `{time range}` with your context.
+
+| Color | ID | Block | Segment / niche | Command or prompt | Goal |
+|-------|----|-------|-----------------|-------------------|------|
+| 🔵 | CFG-01 | Setup | New users / platform admins | `/cx-setup` | Configure region and authentication |
+| 🔵 | CFG-02 | Configuration | Existing users / platform admins | `/cx-config` | Change region or authentication, or rotate an API key |
+| 🟢 | OBS-LOG-01 | Logs | Developers / service owners | `Show the most frequent errors for {service} in {environment} over {time range}.` | Find recurring errors |
+| 🟣 | OBS-TRACE-01 | Incident investigation | SRE / on-call | `When did the issue affecting {service} start? Summarize the related traces over {time range}.` | Establish incident timeline and trace context |
+| 🟠 | OBS-ALERT-01 | Alerts | NOC / on-call | `Which alerts fired for {service} in {environment} over {time range}?` | Review alert activity |
+
+Color key: 🔵 configuration · 🟢 logs · 🟣 investigation · 🟠 alerting. These are example prompts; available results depend on the connected Coralogix tools, account permissions, and data.
+
 ## Using the MCP in Cursor
 
-Once connected, ask the agent questions about your observability data or platform, for example:
-
-```
-Show me the most frequent errors for service XYZ in the past week.
-```
-
-```
-When did this issue start?
-```
-
-```
-Which alerts fired in the last hour?
-```
-
-After investigating an incident, you can continue with follow-ups such as summarizing impact or suggesting code fixes—the agent uses Coralogix tools when they are available.
+After investigating an incident, continue with follow-ups such as summarizing impact or suggesting code fixes—the agent uses Coralogix tools when they are available.
 
 ## Skills shipped with the plugin
 
